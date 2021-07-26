@@ -148,7 +148,7 @@ import { subscribeToTicker, unsubscribeFromTicker } from './api';
 
 export default {
   name: 'App',
-  data () {
+  data() {
     return {
       ticker: '',
       filter: '',
@@ -159,7 +159,7 @@ export default {
     };
   },
 
-  created () {
+  created() {
     const windowData = Object.fromEntries(
       new URL(window.location).searchParams.entries()
     );
@@ -195,28 +195,28 @@ export default {
   },
 
   computed: {
-    startIndex () {
+    startIndex() {
       return (this.page - 1) * 6;
     },
 
-    endIndex () {
+    endIndex() {
       return this.page * 6;
     },
 
 
-    filteredTickers () {
+    filteredTickers() {
       return this.tickers.filter(ticker => ticker.name.includes(this.filter));
     },
 
-    paginatedTickers () {
+    paginatedTickers() {
       return this.filteredTickers.slice(this.startIndex, this.endIndex);
     },
 
-    hasNextPage () {
+    hasNextPage() {
       return this.filteredTickers.length > this.endIndex;
     },
 
-    normalizedGraph () {
+    normalizedGraph() {
       const maxValue = Math.max(...this.graph);
       const minValue = Math.min(...this.graph);
 
@@ -229,7 +229,7 @@ export default {
       );
     },
 
-    pageStateOptions () {
+    pageStateOptions() {
       return {
         filter: this.filter,
         page: this.page
@@ -238,13 +238,17 @@ export default {
   },
 
   methods: {
-    updateTicker (tickerName, price) {
+    updateTicker(tickerName, price) {
       this.tickers.filter(t => t.name === tickerName).forEach(t => {
+        if (t === this.selectedTicker) {
+          this.graph.push(price);
+        }
+
         t.price = price;
       });
     },
 
-    formatPrice (price) {
+    formatPrice(price) {
       if (price === '-') {
         return price;
       }
@@ -252,7 +256,7 @@ export default {
       return price > 1 ? price.toFixed(2) : price.toPrecision(2);
     },
 
-    add () {
+    add() {
       const currentTicker = {
         name: this.ticker,
         price: '-'
@@ -271,11 +275,11 @@ export default {
       }
     },
 
-    select (ticker) {
+    select(ticker) {
       this.selectedTicker = ticker;
     },
 
-    handleDelete (tickerToRemove) {
+    handleDelete(tickerToRemove) {
       this.tickers = this.tickers.filter(ticker => ticker !== tickerToRemove);
 
       if (this.selectedTicker === tickerToRemove) {
@@ -287,25 +291,25 @@ export default {
   },
 
   watch: {
-    selectedTicker () {
+    selectedTicker() {
       this.graph = [];
     },
 
-    tickers () {
+    tickers() {
       localStorage.setItem('cryptonomicon-list', JSON.stringify(this.tickers));
     },
 
-    paginatedTickers () {
+    paginatedTickers() {
       if (this.paginatedTickers.length === 0 && this.page > 1) {
         this.page -= 1;
       }
     },
 
-    filter () {
+    filter() {
       this.page = 1;
     },
 
-    pageStateOptions (value) {
+    pageStateOptions(value) {
       window.history.pushState(
         null,
         document.title,
